@@ -4,8 +4,9 @@ This project uses hand tracking to control the system volume based on the distan
 
 
 ## Demo
-Check out the live demo video on YouTube: [Hand Tracking Volume Control Demo](https://youtu.be/mjLUV6Z-vIg)
 
+Check out the live demo video on YouTube: [Hand Tracking Volume Control Demo](https://youtu.be/mjLUV6Z-vIg)
+<img src="ss.png" alt="first image" width="500"> 
 ## Requirements
 - Python 
 - OpenCV

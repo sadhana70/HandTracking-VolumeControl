@@ -1,18 +1,88 @@
+/* Basic body styling */
+body {
+    font-family: 'Poppins', sans-serif;
+    color: #7adad8;
+    background-color: #beded7;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Container to hold heading, video, and volume bar */
+.container {
+    text-align: center;
+}
+
+/* Heading styles */
+h1 {
+    font-size: 2rem;
+    color: #2C3E50;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Video container to hold video and volume bar next to each other */
+.video-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Video feed styling */
 #videoFeed {
     width: 640px;
     height: 480px;
     background-color: #666;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    object-fit: cover;
 }
+
+/* Volume bar styling */
 #volumeBar {
     width: 35px;
     height: 250px;
     background-color: #ddd;
     position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    margin-left: 20px;
 }
+
+/* Volume level fill */
 #volumeLevel {
     width: 100%;
-    background-color: #4CAF50;
+    background: linear-gradient(180deg, #1ABC9C, #16A085);
     position: absolute;
     bottom: 0;
-    transition: height 0.1s;
+    transition: height 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    border-radius: 20px 20px 0 0;
+}
+
+/* Volume text */
+#volumeText {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    color: #2C3E50;
+}
+
+/* Responsive adjustments for smaller screens */
+@media screen and (max-width: 768px) {
+    #videoFeed {
+        width: 320px;
+        height: 240px;
+    }
+
+    #volumeBar {
+        width: 25px;
+        height: 150px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
 }

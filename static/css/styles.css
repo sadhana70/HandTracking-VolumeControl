@@ -1,0 +1,18 @@
+#videoFeed {
+    width: 640px;
+    height: 480px;
+    background-color: #666;
+}
+#volumeBar {
+    width: 35px;
+    height: 250px;
+    background-color: #ddd;
+    position: relative;
+}
+#volumeLevel {
+    width: 100%;
+    background-color: #4CAF50;
+    position: absolute;
+    bottom: 0;
+    transition: height 0.1s;
+}

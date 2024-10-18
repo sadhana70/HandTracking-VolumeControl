@@ -4,104 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hand Tracking Volume Control</title>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-    <style>
-        #output_canvas {
-            width: 640px;
-            height: 480px;
-            background-color: #666;
-        }
-        #volumeBar {
-            width: 35px;
-            height: 250px;
-            background-color: #ddd;
-            position: relative;
-        }
-        #volumeLevel {
-            width: 100%;
-            background-color: #4CAF50;
-            position: absolute;
-            bottom: 0;
-            transition: height 0.1s;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
     <h1>Hand Tracking Volume Control</h1>
     <div style="display: flex;">
-        <canvas id="output_canvas"></canvas>
+        <img id="videoFeed" alt="Video feed">
         <div id="volumeBar">
             <div id="volumeLevel"></div>
         </div>
     </div>
     <p id="volumeText">Volume: 0%</p>
     
-    <script>
-        const videoElement = document.createElement('video');
-        const canvasElement = document.getElementById('output_canvas');
-        const canvasCtx = canvasElement.getContext('2d');
-        const volumeLevel = document.getElementById('volumeLevel');
-        const volumeText = document.getElementById('volumeText');
-
-        function onResults(results) {
-            canvasCtx.save();
-            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-            if (results.multiHandLandmarks) {
-                for (const landmarks of results.multiHandLandmarks) {
-                    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {color: '#00FF00', lineWidth: 5});
-                    drawLandmarks(canvasCtx, landmarks, {color: '#FF0000', lineWidth: 2});
-                }
-
-                const hand = results.multiHandLandmarks[0];
-                if (hand) {
-                    const thumbTip = hand[4];
-                    const indexTip = hand[8];
-                    const distance = Math.hypot(thumbTip.x - indexTip.x, thumbTip.y - indexTip.y);
-
-                    // Map distance to volume (0-100)
-                    const minDist = 0.05;
-                    const maxDist = 0.3;
-                    let volume = Math.floor((distance - minDist) / (maxDist - minDist) * 100);
-                    volume = Math.max(0, Math.min(100, volume));
-
-                    // Update volume display
-                    volumeLevel.style.height = `${volume}%`;
-                    volumeText.textContent = `Volume: ${volume}%`;
-
-                    // Draw line between thumb and index finger
-                    canvasCtx.beginPath();
-                    canvasCtx.moveTo(thumbTip.x * canvasElement.width, thumbTip.y * canvasElement.height);
-                    canvasCtx.lineTo(indexTip.x * canvasElement.width, indexTip.y * canvasElement.height);
-                    canvasCtx.strokeStyle = '#FF0000';
-                    canvasCtx.lineWidth = 2;
-                    canvasCtx.stroke();
-                }
-            }
-            canvasCtx.restore();
-        }
-
-        const hands = new Hands({locateFile: (file) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-        }});
-        hands.setOptions({
-            maxNumHands: 1,
-            modelComplexity: 1,
-            minDetectionConfidence: 0.5,
-            minTrackingConfidence: 0.5
-        });
-        hands.onResults(onResults);
-
-        const camera = new Camera(videoElement, {
-            onFrame: async () => {
-                await hands.send({image: videoElement});
-            },
-            width: 640,
-            height: 480
-        });
-        camera.start();
-    </script>
+    <script src="/static/js/script.js"></script>
 </body>
 </html>

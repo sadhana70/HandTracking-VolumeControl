@@ -1,6 +1,4 @@
 import cv2
-import numpy as np
-import math
 import module as ht
 import osascript as osa
 from fastapi import FastAPI, WebSocket
@@ -43,29 +41,17 @@ async def websocket_endpoint(websocket: WebSocket):
             img = detector.findHands(img)
             lmList = detector.findPosition(img)
 
-            if lmList:
-                # Your existing hand tracking logic here
-                thumbX, thumbY = lmList[4][1], lmList[4][2]
-                indexX, indexY = lmList[8][1], lmList[8][2]
-                
-                # Calculate distance
-                finDiff = math.hypot(indexX-thumbX, indexY-thumbY)
-                
-                # Map to volume
-                vol = np.interp(finDiff, [20, 200], [0, 100])
-                vol = int(vol)
+            # Process the frame and control volume
+            img, vol, barVol = ht.process_frame(img, lmList)
 
-                # Set system volume
-                osa.run(f'set volume output volume {vol}')
-
-                # Send volume and hand position to client
-                await websocket.send_json({
-                    "volume": vol,
-                    "thumbX": thumbX,
-                    "thumbY": thumbY,
-                    "indexX": indexX,
-                    "indexY": indexY
-                })
+            # Send volume and hand position to client
+            await websocket.send_json({
+                "volume": int(vol),
+                "thumbX": lmList[4][1] if lmList else 0,
+                "thumbY": lmList[4][2] if lmList else 0,
+                "indexX": lmList[8][1] if lmList else 0,
+                "indexY": lmList[8][2] if lmList else 0
+            })
 
             # Convert frame to JPEG
             _, buffer = cv2.imencode('.jpg', img)

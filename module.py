@@ -1,6 +1,8 @@
 import cv2
 import mediapipe as mp
-import time
+import osascript as osa
+import numpy as np
+import math
 
 
 class handDetector():
@@ -45,30 +47,33 @@ class handDetector():
         return lmList
 
 
-def main():
-    pTime = 0
-    cTime = 0
-    cap = cv2.VideoCapture(0)
-    detector = handDetector()
-    while True:
-        success, img = cap.read()
-        img = detector.findHands(img)
-        lmList = detector.findPosition(img)
-        if len(lmList) != 0:
-            print(lmList[4])
+def process_frame(img, lmList):
+    vol = 0
+    barVol = 400
+    minVol, maxVol = 0, 100
+    finDiffMin, finDiffMax = 20, 200
 
-        cTime = time.time()
-        fps = 1 / (cTime - pTime)
-        pTime = cTime
+    if lmList:
+        # Thumb tip: 4, Index finger tip: 8
+        thumbX, thumbY = lmList[4][1], lmList[4][2]
+        indexX, indexY = lmList[8][1], lmList[8][2]
+        midX, midY = (thumbX + indexX) // 2, (thumbY + indexY) // 2
 
-        cv2.putText(img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_PLAIN, 3,
-                    (255, 0, 255), 3)
+        cv2.circle(img, (thumbX, thumbY), 10, (128, 0, 0), cv2.FILLED)
+        cv2.circle(img, (indexX, indexY), 10, (128, 0, 0), cv2.FILLED)
+        cv2.circle(img, (midX, midY), 5, (128, 0, 0), cv2.FILLED)
+        cv2.line(img, (thumbX, thumbY), (indexX, indexY), (128, 0, 0), 2)
 
-        cv2.imshow("Hand Tracking", img)
-        # Press 'q' to quit
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        # Calculate distance between thumb and index finger
+        finDiff = math.hypot(indexX - thumbX, indexY - thumbY)
 
+        # Adjust volume based on distance
+        vol = np.interp(finDiff, [finDiffMin, finDiffMax], [minVol, maxVol])
+        osa.run(f'set volume output volume {str(int(vol))}')
 
-if __name__ == "__main__":
-    main()
+        # Update the visual volume bar
+        barVol = np.interp(finDiff, [finDiffMin, finDiffMax], [400, 150])
+        if finDiff < 30:
+            cv2.circle(img, (midX, midY), 10, (255, 0, 0), cv2.FILLED)
+
+    return img, vol, barVol
